@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}{{product.title}}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h3>Product: {{product.title}}</h3><hr>
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{product.image.url}}" alt="" class="img-fluid">
+            <div class="row">
+                {% for pi in product.productimage_set.all %}
+                <div class="col-md-4 p-3">
+                    <a href="{{pi.image.url}}" target="_blank">
+                        <img src="{{pi.image.url}}" class="img-fluid" style="height: 500px; object-fit: contain;" alt="">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-md-8">
+            <h4>{{product.title}} (Viewed {{product.view_count}} times), Stars: {% if product.get_rating == 0 %}No ratings yet{% else %}{{ product.get_rating|floatformat:1 }}{% endif %}⭐</h4>
+            <h5>Category: {{product.category}}</h5>
+            <h5>Price: <strike>$. {{product.marked_price}}</strike> $. {{product.selling_price}}</h5>
+            <a href="{% url 'ecomapp:addtocart' product.id %}" class="btn btn-warning">Add To Cart</a>
+            <hr>
+            <p class="text-info">Warranty: {{product.warranty}}</p>
+            <p class="text-info">Return Policy:{{product.return_policy}}</p>
+            <hr>
+           
+            <h2 class="text-danger">Reviews</h2>
+            <div> 
+                {% for review in product.reviews.all %}
+                <div>
+                     <p class="mt-5">
+                         <strong class="text-warning " >{{review.get_user_name }}</strong> <hr>
+                        <strong>Date: </strong>{{ review.date_added|date:"Y-m-d" }},
+                        <strong>Stars: </strong>{{ review.stars }} ⭐
+                    </p>
+
+                    <span>{{ review.content }}</span>
+                </div>
+                {% empty %}
+                <div >
+                    No reviews yet...
+                </div>
+            {% endfor %}
+            </div>
+        <div>
+            {% if request.user.is_authenticated %}
+            <hr>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <h2 class="text-danger" style="margin-top:2rem !important">Add a comment</h2>
+                    <div style="margin-top: 3rem;">
+                        <label>Stars</label>
+
+                        <div>
+                            <select style="padding: 10px;" name="stars">
+                                    <option  value="1">1⭐</option>
+                                    <option value="2">2⭐</option>
+                                    <option value="3" selected>3⭐</option>
+                                    <option value="4">4⭐</option>
+                                    <option value="5">5⭐</option>
+                                </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="margin-top: 1rem;">Comment</label>
+                        <div>
+                            <textarea placeholder="Enter your comment please"style="padding: 1rem; width: 500px; height: 100px;" name="content"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-warning" style="margin-top: 1rem; margin-bottom: 1rem !important;">Submit</button>
+                    </div>
+                </form>
+            {% else %}
+            <p class="mt-4 rounded-pill p-3 border border-secondary" style="text-align: center;"> Please log in to add review!</p>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
